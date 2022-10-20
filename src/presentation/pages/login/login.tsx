@@ -1,15 +1,17 @@
 import React from "react";
 import Styles from "./login-styles.scss";
-import Spinner from "@/presentation/components/spinner/spinner";
-import Header from "@/presentation/components/login-header/login-header";
-import Footer from "@/presentation/components/footer/footer";
-import Input from "@/presentation/components/input/input";
-import FormStatus from "@/presentation/components/form-status/form-status";
+import {
+  Spinner,
+  LoginHeader,
+  Footer,
+  Input,
+  FormStatus,
+} from "@/presentation/components";
 
-export function Login() {
+const Login: React.FC = () => {
   return (
     <div className={Styles.login}>
-      <Header />
+      <LoginHeader />
       <form className={Styles.form}>
         <h2>Login</h2>
         <Input type="email" name="email" placeholder="Digite seu e-mail" />
@@ -26,4 +28,6 @@ export function Login() {
       <Footer />
     </div>
   );
-}
+};
+
+export default Login;
