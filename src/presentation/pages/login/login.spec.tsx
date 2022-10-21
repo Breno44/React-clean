@@ -7,5 +7,7 @@ describe("Login Component", () => {
     render(<Login />);
     const errorWrap = screen.getByRole("error-wrap");
     expect(errorWrap.childElementCount).toBe(0);
+    const submitButton = screen.getByRole("submit") as HTMLButtonElement;
+    expect(submitButton.disabled).toBe(true);
   });
 });
