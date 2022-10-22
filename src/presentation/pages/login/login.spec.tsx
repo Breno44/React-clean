@@ -1,16 +1,35 @@
 import React from "react";
 import Login from "./login";
-import { render, RenderResult, screen } from "@testing-library/react";
+import {
+  fireEvent,
+  render,
+  RenderResult,
+  screen,
+} from "@testing-library/react";
+import { Validation } from "@/presentation/protocols/validation";
 
 type SutTypes = {
   sut: RenderResult;
+  validationSpy: ValidationSpy;
 };
 
+class ValidationSpy implements Validation {
+  errorMessage: string;
+  input: object;
+
+  validate(input: object): string {
+    this.input = input;
+    return this.errorMessage;
+  }
+}
+
 const makeSut = (): SutTypes => {
-  const sut = render(<Login />);
+  const validationSpy = new ValidationSpy();
+  const sut = render(<Login validation={validationSpy} />);
 
   return {
     sut,
+    validationSpy,
   };
 };
 
@@ -27,5 +46,14 @@ describe("Login Component", () => {
     const passwordStatus = screen.getByRole("password-status");
     expect(passwordStatus.title).toBe("Campo obrigatório");
     expect(passwordStatus.textContent).toBe("🔴");
+  });
+
+  test("Should call Validation with correct values", () => {
+    const { validationSpy } = makeSut();
+    const emailInput = screen.getByRole("email");
+    fireEvent.input(emailInput, { target: { value: "any_email" } });
+    expect(validationSpy.input).toEqual({
+      email: "any_email",
+    });
   });
 });
