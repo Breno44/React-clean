@@ -1,10 +1,22 @@
 import React from "react";
 import Login from "./login";
-import { render, screen } from "@testing-library/react";
+import { render, RenderResult, screen } from "@testing-library/react";
+
+type SutTypes = {
+  sut: RenderResult;
+};
+
+const makeSut = (): SutTypes => {
+  const sut = render(<Login />);
+
+  return {
+    sut,
+  };
+};
 
 describe("Login Component", () => {
   test("Should not render spinner and error on start", () => {
-    render(<Login />);
+    makeSut();
     const errorWrap = screen.getByRole("error-wrap");
     expect(errorWrap.childElementCount).toBe(0);
     const submitButton = screen.getByRole("submit") as HTMLButtonElement;
