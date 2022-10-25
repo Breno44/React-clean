@@ -11,82 +11,84 @@ import faker from "faker";
 
 type SutTypes = {
   sut: RenderResult;
-  validationStub: ValidationStub;
 };
 
-const makeSut = (): SutTypes => {
+type SutParams = {
+  validationError: string;
+};
+
+const makeSut = (params?: SutParams): SutTypes => {
   const validationStub = new ValidationStub();
-  validationStub.errorMessage = faker.random.words();
+  validationStub.errorMessage = params?.validationError;
   const sut = render(<Login validation={validationStub} />);
 
   return {
     sut,
-    validationStub,
   };
 };
 
 describe("Login Component", () => {
   test("Should not render spinner and error on start", () => {
-    const { validationStub } = makeSut();
+    const validationError = faker.random.words();
+    makeSut({ validationError });
     const errorWrap = screen.getByRole("error-wrap");
     expect(errorWrap.childElementCount).toBe(0);
     const submitButton = screen.getByRole("submit") as HTMLButtonElement;
     expect(submitButton.disabled).toBe(true);
     const emailStatus = screen.getByRole("email-status");
-    expect(emailStatus.title).toBe(validationStub.errorMessage);
+    expect(emailStatus.title).toBe(validationError);
     expect(emailStatus.textContent).toBe("🔴");
     const passwordStatus = screen.getByRole("password-status");
-    expect(passwordStatus.title).toBe(validationStub.errorMessage);
+    expect(passwordStatus.title).toBe(validationError);
     expect(passwordStatus.textContent).toBe("🔴");
   });
 
   test("Should show email error if Validation fails", () => {
-    const { sut, validationStub } = makeSut();
+    const validationError = faker.random.words();
+    makeSut({ validationError });
     const emailInput = screen.getByRole("email");
     fireEvent.input(emailInput, { target: { value: faker.internet.email() } });
-    const emailStatus = sut.getByRole("email-status");
-    expect(emailStatus.title).toBe(validationStub.errorMessage);
+    const emailStatus = screen.getByRole("email-status");
+    expect(emailStatus.title).toBe(validationError);
     expect(emailStatus.textContent).toBe("🔴");
   });
 
   test("Should show password error if Validation fails", () => {
-    const { sut, validationStub } = makeSut();
+    const validationError = faker.random.words();
+    makeSut({ validationError });
     const passwordInput = screen.getByRole("password");
     fireEvent.input(passwordInput, {
       target: { value: faker.internet.password() },
     });
-    const passwordStatus = sut.getByRole("password-status");
-    expect(passwordStatus.title).toBe(validationStub.errorMessage);
+    const passwordStatus = screen.getByRole("password-status");
+    expect(passwordStatus.title).toBe(validationError);
     expect(passwordStatus.textContent).toBe("🔴");
   });
 
   test("Should show valid email state if Validation succeeds", () => {
-    const { sut, validationStub } = makeSut();
-    validationStub.errorMessage = null;
+    makeSut();
     const emailInput = screen.getByRole("email");
     fireEvent.input(emailInput, {
       target: { value: faker.internet.email() },
     });
-    const emailStatus = sut.getByRole("email-status");
+    const emailStatus = screen.getByRole("email-status");
     expect(emailStatus.title).toBe("Tudo certo!");
     expect(emailStatus.textContent).toBe("🟢");
   });
 
   test("Should show valid password state if Validation succeeds", () => {
-    const { sut, validationStub } = makeSut();
-    validationStub.errorMessage = null;
+    makeSut();
     const passwordInput = screen.getByRole("password");
     fireEvent.input(passwordInput, {
       target: { value: faker.internet.password() },
     });
-    const passwordStatus = sut.getByRole("password-status");
+    const passwordStatus = screen.getByRole("password-status");
     expect(passwordStatus.title).toBe("Tudo certo!");
     expect(passwordStatus.textContent).toBe("🟢");
   });
 
   test("Should enable submit button if form is valid", () => {
-    const { sut, validationStub } = makeSut();
-    validationStub.errorMessage = null;
+    makeSut();
     const emailInput = screen.getByRole("email");
     fireEvent.input(emailInput, {
       target: { value: faker.internet.email() },
