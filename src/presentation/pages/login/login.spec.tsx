@@ -100,4 +100,20 @@ describe("Login Component", () => {
     const submitButton = screen.getByRole("submit") as HTMLButtonElement;
     expect(submitButton.disabled).toBe(false);
   });
+
+  test("Should show spinner on submit", () => {
+    makeSut();
+    const emailInput = screen.getByRole("email");
+    fireEvent.input(emailInput, {
+      target: { value: faker.internet.email() },
+    });
+    const passwordInput = screen.getByRole("password");
+    fireEvent.input(passwordInput, {
+      target: { value: faker.internet.password() },
+    });
+    const submitButton = screen.getByRole("submit");
+    fireEvent.click(submitButton);
+    const spinner = screen.getByRole("spinner");
+    expect(spinner).toBeTruthy();
+  });
 });
