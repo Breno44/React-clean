@@ -8,6 +8,7 @@ import {
 } from "@testing-library/react";
 import { ValidationStub, AuthenticationSpy } from "@/presentation/test";
 import faker from "faker";
+import { InvalidCredentialsError } from "@/domain/errors";
 
 type SutTypes = {
   sut: RenderResult;
@@ -142,5 +143,16 @@ describe("Login Component", () => {
     populateEmailField();
     fireEvent.submit(screen.getByRole("form"));
     expect(authenticationSpy.callsCount).toBe(1);
+  });
+
+  test("Should present error if Authentication fails", () => {
+    const { authenticationSpy } = makeSut();
+    const error = new InvalidCredentialsError();
+    jest.spyOn(authenticationSpy, "auth").mockRejectedValueOnce(error);
+    populateEmailField();
+    const mainError = screen.getByRole("main-error");
+    expect(mainError.textContent).toBe(error.message);
+    const errorWrap = screen.getByRole("error-wrap");
+    expect(errorWrap.childElementCount).toBe(1);
   });
 });
