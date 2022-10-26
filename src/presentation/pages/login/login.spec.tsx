@@ -135,4 +135,12 @@ describe("Login Component", () => {
     simulateValidSubmit();
     expect(authenticationSpy.callsCount).toBe(1);
   });
+
+  test("Should not call Authentication if form is invalid", () => {
+    const validationError = faker.random.words();
+    const { authenticationSpy } = makeSut({ validationError });
+    populateEmailField();
+    fireEvent.submit(screen.getByRole("form"));
+    expect(authenticationSpy.callsCount).toBe(1);
+  });
 });
