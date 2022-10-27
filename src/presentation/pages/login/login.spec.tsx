@@ -11,6 +11,8 @@ import {
 import Login from "./login";
 import { ValidationStub, AuthenticationSpy } from "@/presentation/test";
 import { InvalidCredentialsError } from "@/domain/errors";
+import { createMemoryHistory } from "@remix-run/router";
+import { Router } from "react-router-dom";
 
 type SutTypes = {
   sut: RenderResult;
@@ -21,14 +23,16 @@ type SutParams = {
   validationError: string;
 };
 
+const history = createMemoryHistory();
 const makeSut = (params?: SutParams): SutTypes => {
   const validationStub = new ValidationStub();
   const authenticationSpy = new AuthenticationSpy();
   validationStub.errorMessage = params?.validationError;
   const sut = render(
-    <Login validation={validationStub} authentication={authenticationSpy} />
+    <Router location={history.location} navigator={history}>
+      <Login validation={validationStub} authentication={authenticationSpy} />
+    </Router>
   );
-
   return {
     sut,
     authenticationSpy,
@@ -170,5 +174,13 @@ describe("Login Component", () => {
       "accessToken",
       authenticationSpy.account.accessToken
     );
+  });
+
+  it("Should go to signup page", async () => {
+    makeSut();
+    const register = screen.getByTestId("signup");
+    fireEvent.click(register);
+    expect(history.location.pathname).toBe("/signup");
+    expect(history.index).toBe(1);
   });
 });
