@@ -39,14 +39,15 @@ const makeSut = (params?: SutParams): SutTypes => {
   };
 };
 
-const simulateValidSubmit = (
+const simulateValidSubmit = async (
   email = faker.internet.email(),
   password = faker.internet.password()
-): void => {
+): Promise<void> => {
   populateEmailField(email);
   populatePasswordField(password);
-  const submitButton = screen.getByRole("submit");
-  fireEvent.click(submitButton);
+  const form = screen.getByRole("form");
+  fireEvent.submit(form);
+  await waitFor(() => form);
 };
 
 const populateEmailField = (email = faker.internet.email()): void => {
@@ -63,13 +64,23 @@ const populatePasswordField = (password = faker.internet.password()): void => {
   });
 };
 
-const simulateStatusForField = (
+const testStatusForField = (
   fieldName: string,
   validationError?: string
 ): void => {
   const emailStatus = screen.getByRole(`${fieldName}-status`);
   expect(emailStatus.title).toBe(validationError || "Tudo certo!");
   expect(emailStatus.textContent).toBe(validationError ? "🔴" : "🟢");
+};
+
+const testErrorWrapChildCount = (count: number): void => {
+  const errorWrap = screen.getByRole("error-wrap");
+  expect(errorWrap.childElementCount).toBe(count);
+};
+
+const testElementsExists = (fieldName: string): void => {
+  const el = screen.getByRole(fieldName);
+  expect(el).toBeTruthy();
 };
 
 describe("Login Component", () => {
@@ -80,38 +91,37 @@ describe("Login Component", () => {
   test("Should start with initial state", () => {
     const validationError = faker.random.words();
     makeSut({ validationError });
-    const errorWrap = screen.getByRole("error-wrap");
-    expect(errorWrap.childElementCount).toBe(0);
+    testErrorWrapChildCount(0);
     const submitButton = screen.getByRole("submit") as HTMLButtonElement;
     expect(submitButton.disabled).toBe(true);
-    simulateStatusForField("email", validationError);
-    simulateStatusForField("password", validationError);
+    testStatusForField("email", validationError);
+    testStatusForField("password", validationError);
   });
 
   test("Should show email error if Validation fails", () => {
     const validationError = faker.random.words();
     makeSut({ validationError });
     populateEmailField();
-    simulateStatusForField("email", validationError);
+    testStatusForField("email", validationError);
   });
 
   test("Should show password error if Validation fails", () => {
     const validationError = faker.random.words();
     makeSut({ validationError });
     populatePasswordField();
-    simulateStatusForField("password", validationError);
+    testStatusForField("password", validationError);
   });
 
   test("Should show valid email state if Validation succeeds", () => {
     makeSut();
     populateEmailField();
-    simulateStatusForField("email");
+    testStatusForField("email");
   });
 
   test("Should show valid password state if Validation succeeds", () => {
     makeSut();
     populatePasswordField();
-    simulateStatusForField("password");
+    testStatusForField("password");
   });
 
   test("Should enable submit button if form is valid", () => {
@@ -122,36 +132,34 @@ describe("Login Component", () => {
     expect(submitButton.disabled).toBe(false);
   });
 
-  test("Should show spinner on submit", () => {
+  test("Should show spinner on submit", async () => {
     makeSut();
-    simulateValidSubmit();
-    const spinner = screen.getByRole("spinner");
-    expect(spinner).toBeTruthy();
+    await simulateValidSubmit();
+    testElementsExists("spinner");
   });
 
-  test("Should call Authentication with correct values", () => {
+  test("Should call Authentication with correct values", async () => {
     const { authenticationSpy } = makeSut();
     const email = faker.internet.email();
     const password = faker.internet.password();
-    simulateValidSubmit(email, password);
+    await simulateValidSubmit(email, password);
     expect(authenticationSpy.params).toEqual({
       email,
       password,
     });
   });
 
-  test("Should call Authentication only once", () => {
+  test("Should call Authentication only once", async () => {
     const { authenticationSpy } = makeSut();
-    simulateValidSubmit();
-    simulateValidSubmit();
+    await simulateValidSubmit();
+    await simulateValidSubmit();
     expect(authenticationSpy.callsCount).toBe(1);
   });
 
-  test("Should not call Authentication if form is invalid", () => {
+  test("Should not call Authentication if form is invalid", async () => {
     const validationError = faker.random.words();
     const { authenticationSpy } = makeSut({ validationError });
-    populateEmailField();
-    fireEvent.submit(screen.getByRole("form"));
+    await simulateValidSubmit();
     expect(authenticationSpy.callsCount).toBe(1);
   });
 
@@ -162,14 +170,12 @@ describe("Login Component", () => {
     populateEmailField();
     const mainError = screen.getByRole("main-error");
     expect(mainError.textContent).toBe(error.message);
-    const errorWrap = screen.getByRole("error-wrap");
-    expect(errorWrap.childElementCount).toBe(1);
+    testErrorWrapChildCount(1);
   });
 
   test("Should add accessToken to localStorage on success", async () => {
     const { authenticationSpy } = makeSut();
-    simulateValidSubmit();
-    await waitFor(() => screen.getByRole("form"));
+    await simulateValidSubmit();
     expect(localStorage.setItem).toHaveBeenCalledWith(
       "accessToken",
       authenticationSpy.account.accessToken
@@ -179,7 +185,7 @@ describe("Login Component", () => {
 
   it("Should go to signup page", async () => {
     makeSut();
-    const register = screen.getByTestId("signup");
+    const register = screen.getByRole("signup");
     fireEvent.click(register);
     expect(history.location.pathname).toBe("/signup");
     expect(history.index).toBe(1);
