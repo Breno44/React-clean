@@ -160,17 +160,7 @@ describe("Login Component", () => {
     const validationError = faker.random.words();
     const { authenticationSpy } = makeSut({ validationError });
     await simulateValidSubmit();
-    expect(authenticationSpy.callsCount).toBe(1);
-  });
-
-  test("Should present error if Authentication fails", () => {
-    const { authenticationSpy } = makeSut();
-    const error = new InvalidCredentialsError();
-    jest.spyOn(authenticationSpy, "auth").mockRejectedValueOnce(error);
-    populateEmailField();
-    const mainError = screen.getByRole("main-error");
-    expect(mainError.textContent).toBe(error.message);
-    testErrorWrapChildCount(1);
+    expect(authenticationSpy.callsCount).toBe(0);
   });
 
   test("Should add accessToken to localStorage on success", async () => {
