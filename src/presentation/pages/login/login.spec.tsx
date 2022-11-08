@@ -92,13 +92,17 @@ const testElementsExists = (fieldName: string): void => {
   expect(el).toBeTruthy();
 };
 
+const testButtonIsDisabled = (fieldName: string, isDisabled: boolean): void => {
+  const button = screen.getByRole(fieldName) as HTMLButtonElement;
+  expect(button.disabled).toBe(isDisabled);
+};
+
 describe("Login Component", () => {
   test("Should start with initial state", () => {
     const validationError = faker.random.words();
     makeSut({ validationError });
     testErrorWrapChildCount(0);
-    const submitButton = screen.getByRole("submit") as HTMLButtonElement;
-    expect(submitButton.disabled).toBe(true);
+    testButtonIsDisabled("submit", true);
     testStatusForField("email", validationError);
     testStatusForField("password", validationError);
   });
@@ -133,8 +137,7 @@ describe("Login Component", () => {
     makeSut();
     populateEmailField();
     populatePasswordField();
-    const submitButton = screen.getByRole("submit") as HTMLButtonElement;
-    expect(submitButton.disabled).toBe(false);
+    testButtonIsDisabled("submit", false);
   });
 
   test("Should show spinner on submit", async () => {
