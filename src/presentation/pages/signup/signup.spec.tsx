@@ -26,16 +26,6 @@ const makeSut = (params?: SutParams): SutTypes => {
   };
 };
 
-const populateField = (
-  fieldName: string,
-  value = faker.random.word()
-): void => {
-  const el = screen.getByRole(fieldName);
-  fireEvent.input(el, {
-    target: { value: value },
-  });
-};
-
 describe("Login Component", () => {
   test("Should start with initial state", () => {
     const validationError = faker.random.words();
@@ -51,7 +41,7 @@ describe("Login Component", () => {
   test("Should show name error if Validation fails", () => {
     const validationError = faker.random.words();
     makeSut({ validationError });
-    populateField("name");
+    Helper.populateField("name");
     Helper.testStatusForField("name", validationError);
   });
 });
