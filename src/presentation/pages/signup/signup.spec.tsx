@@ -7,28 +7,45 @@ import {
   fireEvent,
   waitFor,
 } from "@testing-library/react";
-import { Helper, ValidationStub, AddAccountSpy } from "@/presentation/test";
+import {
+  Helper,
+  ValidationStub,
+  AddAccountSpy,
+  SaveAccessTokenMock,
+} from "@/presentation/test";
+import { createMemoryHistory } from "@remix-run/router";
+import { Router } from "react-router-dom";
 import faker from "faker";
 
 type SutTypes = {
   sut: RenderResult;
   addAccountSpy: AddAccountSpy;
+  saveAccessTokenMock: SaveAccessTokenMock;
 };
 
 type SutParams = {
   validationError: string;
 };
 
+const history = createMemoryHistory({ initialEntries: ["/signup"] });
 const makeSut = (params?: SutParams): SutTypes => {
   const validationStub = new ValidationStub();
   validationStub.errorMessage = params?.validationError;
   const addAccountSpy = new AddAccountSpy();
+  const saveAccessTokenMock = new SaveAccessTokenMock();
   const sut = render(
-    <SignUp validation={validationStub} addAccount={addAccountSpy} />
+    <Router location={history.location} navigator={history}>
+      <SignUp
+        validation={validationStub}
+        addAccount={addAccountSpy}
+        saveAccessToken={saveAccessTokenMock}
+      />
+    </Router>
   );
   return {
     sut,
     addAccountSpy,
+    saveAccessTokenMock,
   };
 };
 
@@ -151,5 +168,14 @@ describe("Login Component", () => {
     const { addAccountSpy } = makeSut({ validationError });
     await simulateValidSubmit();
     expect(addAccountSpy.callsCount).toBe(0);
+  });
+
+  test("Should call SaveAccessToken on success", async () => {
+    const { addAccountSpy, saveAccessTokenMock } = makeSut();
+    await simulateValidSubmit();
+    expect(saveAccessTokenMock.accessToken).toBe(
+      addAccountSpy.account.accessToken
+    );
+    expect(history.location.pathname).toBe("/");
   });
 });
