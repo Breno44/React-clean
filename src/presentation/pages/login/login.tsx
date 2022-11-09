@@ -86,7 +86,7 @@ const Login: React.FC<Props> = ({
             Entrar
           </button>
 
-          <Link role="signup" to="/signup" className={Styles.link}>
+          <Link role="signup-link" to="/signup" className={Styles.link}>
             Criar conta
           </Link>
 

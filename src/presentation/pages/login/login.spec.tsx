@@ -145,7 +145,7 @@ describe("Login Component", () => {
 
   it("Should go to signup page", async () => {
     makeSut();
-    const register = screen.getByRole("signup");
+    const register = screen.getByRole("signup-link");
     fireEvent.click(register);
     expect(history.location.pathname).toBe("/signup");
     expect(history.index).toBe(1);

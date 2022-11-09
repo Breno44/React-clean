@@ -10,7 +10,7 @@ import {
 import Context from "@/presentation/contexts/form/form-context";
 import { Validation } from "@/presentation/protocols/validation";
 import { AddAccount, SaveAccessToken } from "@/domain/usecases";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 type Props = {
   validation: Validation;
@@ -113,7 +113,9 @@ const SignUp: React.FC<Props> = ({
           >
             Entrar
           </button>
-          <span className={Styles.link}>Voltar Para Login</span>
+          <Link role="login-link" to="/login" className={Styles.link}>
+            Voltar Para Login
+          </Link>
           <FormStatus />
         </form>
       </Context.Provider>

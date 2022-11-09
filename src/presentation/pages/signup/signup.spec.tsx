@@ -178,4 +178,12 @@ describe("Login Component", () => {
     );
     expect(history.location.pathname).toBe("/");
   });
+
+  it("Should go to login page", async () => {
+    makeSut();
+    const loginLink = screen.getByRole("login-link");
+    fireEvent.click(loginLink);
+    expect(history.index).toBe(1);
+    expect(history.location.pathname).toBe("/login");
+  });
 });
