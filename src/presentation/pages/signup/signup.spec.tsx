@@ -89,4 +89,13 @@ describe("Login Component", () => {
     Helper.populateField("passwordConfirmation");
     Helper.testStatusForField("passwordConfirmation");
   });
+
+  test("Should enable submit button if form is valid", () => {
+    makeSut();
+    Helper.populateField("name");
+    Helper.populateField("email");
+    Helper.populateField("password");
+    Helper.populateField("passwordConfirmation");
+    Helper.testButtonIsDisabled("submit", false);
+  });
 });
