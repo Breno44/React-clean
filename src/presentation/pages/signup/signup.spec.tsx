@@ -33,9 +33,9 @@ describe("Login Component", () => {
     Helper.testChildCount("error-wrap", 0);
     Helper.testButtonIsDisabled("submit", true);
     Helper.testStatusForField("name", validationError);
-    Helper.testStatusForField("email", "Campo obrigatório");
-    Helper.testStatusForField("password", "Campo obrigatório");
-    Helper.testStatusForField("passwordConfirmation", "Campo obrigatório");
+    Helper.testStatusForField("email", validationError);
+    Helper.testStatusForField("password", validationError);
+    Helper.testStatusForField("passwordConfirmation", validationError);
   });
 
   test("Should show name error if Validation fails", () => {
@@ -43,5 +43,26 @@ describe("Login Component", () => {
     makeSut({ validationError });
     Helper.populateField("name");
     Helper.testStatusForField("name", validationError);
+  });
+
+  test("Should show email error if Validation fails", () => {
+    const validationError = faker.random.words();
+    makeSut({ validationError });
+    Helper.populateField("email");
+    Helper.testStatusForField("email", validationError);
+  });
+
+  test("Should show password error if Validation fails", () => {
+    const validationError = faker.random.words();
+    makeSut({ validationError });
+    Helper.populateField("password");
+    Helper.testStatusForField("password", validationError);
+  });
+
+  test("Should show passwordConfirmation error if Validation fails", () => {
+    const validationError = faker.random.words();
+    makeSut({ validationError });
+    Helper.populateField("passwordConfirmation");
+    Helper.testStatusForField("passwordConfirmation", validationError);
   });
 });
