@@ -32,3 +32,8 @@ export const populateField = (
     target: { value: value },
   });
 };
+
+export const testElementsExists = (fieldName: string): void => {
+  const el = screen.getByRole(fieldName);
+  expect(el).toBeTruthy();
+};
