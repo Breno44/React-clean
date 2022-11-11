@@ -1,19 +1,19 @@
 import React, { ReactNode } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { Login, SignUp } from "@/presentation/pages";
 
-type Props = {
+type Factory = {
   MakeLogin: React.FC;
+  MakeSignUp: React.FC;
 };
 
-const Router: React.FC<Props> = ({ MakeLogin }: Props) => {
+const Router: React.FC<Factory> = (factory: Factory) => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/login" element={<MakeLogin />} />
+        <Route path="/login" element={<factory.MakeLogin />} />
       </Routes>
       <Routes>
-        <Route path="/signup" element={<SignUp />} />
+        <Route path="/signup" element={<factory.MakeSignUp />} />
       </Routes>
     </BrowserRouter>
   );
