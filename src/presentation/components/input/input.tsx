@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useRef } from "react";
 import Styles from "./input-styles.scss";
 import Context from "@/presentation/contexts/form/form-context";
 
@@ -10,41 +10,39 @@ type Props = React.DetailedHTMLProps<
 const Input: React.FC<Props> = (props: Props) => {
   const { state, setState } = useContext(Context);
   const error = state[`${props.name}Error`];
-
-  const enableInput = (event: React.FocusEvent<HTMLInputElement>): void => {
-    event.target.readOnly = false;
-  };
-
-  const handleChange = (event: React.FocusEvent<HTMLInputElement>): void => {
-    setState({
-      ...state,
-      [event.target.name]: event.target.value,
-    });
-  };
-
-  const getStatus = (): string => {
-    return error ? "🔴" : "🟢";
-  };
-
-  const getTitle = (): string => {
-    return error || "Tudo certo!";
-  };
+  const inputRef = useRef<HTMLInputElement>();
 
   return (
     <div className={Styles.inputWrap}>
       <input
         {...props}
+        ref={inputRef}
+        placeholder=" "
         role={props.name}
         readOnly
-        onFocus={enableInput}
-        onChange={handleChange}
+        onFocus={(e) => {
+          e.target.readOnly = false;
+        }}
+        onChange={(e) => {
+          setState({
+            ...state,
+            [e.target.name]: e.target.value,
+          });
+        }}
       />
+      <label
+        onClick={(_) => {
+          inputRef.current.focus();
+        }}
+      >
+        {props.placeholder}
+      </label>
       <span
         role={`${props.name}-status`}
-        title={getTitle()}
+        title={error || "Tudo certo!"}
         className={Styles.status}
       >
-        {getStatus()}
+        {error ? "🔴" : "🟢"}
       </span>
     </div>
   );
