@@ -61,4 +61,21 @@ describe("Login", () => {
       .should("contain.text", "Credenciais inválidas");
     cy.url().should("equal", `${baseUrl}/login`);
   });
+
+  it("Should present save accessToken if valid credentials are provided", () => {
+    cy.getByRole("email").focus().type("mango@gmail.com");
+    cy.getByRole("password").focus().type("12345");
+    cy.getByRole("submit").click();
+    cy.getByRole("error-wrap")
+      .getByRole("spinner")
+      .should("exist")
+      .getByRole("main-error")
+      .should("not.exist")
+      .getByRole("spinner")
+      .should("not.exist");
+    cy.url().should("equal", `${baseUrl}/`);
+    cy.window().should((window) =>
+      assert.isOk(window.localStorage.getItem("accessToken"))
+    );
+  });
 });
