@@ -1,5 +1,7 @@
 import faker from "faker";
 
+const baseUrl: string = Cypress.config().baseUrl;
+
 describe("Login", () => {
   beforeEach(() => {
     cy.visit("/login");
@@ -42,5 +44,21 @@ describe("Login", () => {
       .should("contain.text", "🟢");
     cy.getByRole("submit").should("not.have.attr", "disabled");
     cy.getByRole("error-wrap").should("not.have.descendants");
+  });
+
+  it("Should present valid state if form is valid", () => {
+    cy.getByRole("email").focus().type(faker.internet.email());
+    cy.getByRole("password").focus().type(faker.random.alphaNumeric(5));
+    cy.getByRole("submit").click();
+    cy.getByRole("error-wrap")
+      .getByRole("spinner")
+      .should("exist")
+      .getByRole("main-error")
+      .should("not.exist")
+      .getByRole("spinner")
+      .should("not.exist")
+      .getByRole("main-error")
+      .should("contain.text", "Credenciais inválidas");
+    cy.url().should("equal", `${baseUrl}/login`);
   });
 });
