@@ -110,4 +110,17 @@ describe("Login", () => {
     );
     cy.url().should("equal", `${baseUrl}/login`);
   });
+
+  it("Should prevent multiple submits", () => {
+    cy.intercept("POST", /login/, {
+      statusCode: 200,
+      body: {
+        invalidProperty: faker.random.uuid(),
+      },
+    }).as("request");
+    cy.getByRole("email").focus().type(faker.internet.email());
+    cy.getByRole("password").focus().type(faker.random.alphaNumeric(5));
+    cy.getByRole("submit").dblclick();
+    cy.get("@request.all").should("have.length", 1);
+  });
 });
