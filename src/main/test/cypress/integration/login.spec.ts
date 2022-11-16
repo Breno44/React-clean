@@ -46,33 +46,31 @@ describe("Login", () => {
     cy.getByRole("error-wrap").should("not.have.descendants");
   });
 
-  it("Should present valid state if form is valid", () => {
+  it("Should present error if invalid credentials are provided", () => {
+    cy.intercept("POST", /login/, {
+      statusCode: 401,
+      body: {},
+    });
     cy.getByRole("email").focus().type(faker.internet.email());
     cy.getByRole("password").focus().type(faker.random.alphaNumeric(5));
     cy.getByRole("submit").click();
-    cy.getByRole("error-wrap")
-      .getByRole("spinner")
-      .should("exist")
-      .getByRole("main-error")
-      .should("not.exist")
-      .getByRole("spinner")
-      .should("not.exist")
-      .getByRole("main-error")
-      .should("contain.text", "Credenciais inválidas");
+    cy.getByRole("spinner").should("not.exist");
+    cy.getByRole("main-error").should("contain.text", "Credenciais inválidas");
     cy.url().should("equal", `${baseUrl}/login`);
   });
 
   it("Should present save accessToken if valid credentials are provided", () => {
+    cy.intercept("POST", /login/, {
+      statusCode: 200,
+      body: {
+        accessToken: faker.random.uuid(),
+      },
+    });
     cy.getByRole("email").focus().type("mango@gmail.com");
     cy.getByRole("password").focus().type("12345");
     cy.getByRole("submit").click();
-    cy.getByRole("error-wrap")
-      .getByRole("spinner")
-      .should("exist")
-      .getByRole("main-error")
-      .should("not.exist")
-      .getByRole("spinner")
-      .should("not.exist");
+    cy.getByRole("main-error").should("not.exist");
+    cy.getByRole("spinner").should("not.exist");
     cy.url().should("equal", `${baseUrl}/`);
     cy.window().should((window) =>
       assert.isOk(window.localStorage.getItem("accessToken"))
