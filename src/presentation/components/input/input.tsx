@@ -13,10 +13,15 @@ const Input: React.FC<Props> = (props: Props) => {
   const inputRef = useRef<HTMLInputElement>();
 
   return (
-    <div className={Styles.inputWrap}>
+    <div
+      role={`${props.name}-wrap`}
+      className={Styles.inputWrap}
+      data-status={error ? "invalid" : "valid"}
+    >
       <input
         {...props}
         ref={inputRef}
+        title={error}
         placeholder=" "
         role={props.name}
         readOnly
@@ -31,19 +36,14 @@ const Input: React.FC<Props> = (props: Props) => {
         }}
       />
       <label
+        title={error}
+        role={`${props.name}-label`}
         onClick={(_) => {
           inputRef.current.focus();
         }}
       >
         {props.placeholder}
       </label>
-      <span
-        role={`${props.name}-status`}
-        title={error || "Tudo certo!"}
-        className={Styles.status}
-      >
-        {error ? "🔴" : "🟢"}
-      </span>
     </div>
   );
 };
