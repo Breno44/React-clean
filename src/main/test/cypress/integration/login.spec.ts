@@ -101,8 +101,10 @@ describe("Login", () => {
       },
     });
     cy.getByRole("email").focus().type(faker.internet.email());
-    cy.getByRole("password").focus().type(faker.random.alphaNumeric(5));
-    cy.getByRole("submit").click();
+    cy.getByRole("password")
+      .focus()
+      .type(faker.random.alphaNumeric(5))
+      .type("{enter}");
     cy.getByRole("spinner").should("not.exist");
     cy.getByRole("main-error").should(
       "contain.text",
