@@ -1,9 +1,9 @@
 import faker from "faker";
 import * as FormHelper from "../support/form-helper";
 
-describe("Login", () => {
+describe("SignUp", () => {
   beforeEach(() => {
-    cy.visit("/login");
+    cy.visit("/signup");
   });
 
   it("Should load with correct initial state", () => {
@@ -31,6 +31,20 @@ describe("Login", () => {
       .type(faker.random.alphaNumeric(4));
     FormHelper.testInputStatus("passwordConfirmation", "Valor inválido");
     cy.getByRole("submit").should("have.attr", "disabled");
+    cy.getByRole("error-wrap").should("not.have.descendants");
+  });
+
+  it("Should present valid state if form is valid", () => {
+    const password = faker.random.alphaNumeric(5);
+    cy.getByRole("name").focus().type(faker.name.findName());
+    FormHelper.testInputStatus("name");
+    cy.getByRole("email").focus().type(faker.internet.email());
+    FormHelper.testInputStatus("email");
+    cy.getByRole("password").focus().type(password);
+    FormHelper.testInputStatus("password");
+    cy.getByRole("passwordConfirmation").focus().type(password);
+    FormHelper.testInputStatus("passwordConfirmation");
+    cy.getByRole("submit").should("not.have.attr", "disabled");
     cy.getByRole("error-wrap").should("not.have.descendants");
   });
 });
