@@ -2,13 +2,17 @@ import faker from "faker";
 import * as FormHelper from "../support/form-helper";
 import * as Http from "../support/signup-mocks";
 
-const simulateValidSubmit = (): void => {
+const populateFields = (): void => {
   const password = faker.random.alphaNumeric(7);
 
   cy.getByRole("name").focus().type(faker.name.findName());
   cy.getByRole("email").focus().type(faker.internet.email());
   cy.getByRole("password").focus().type(password);
   cy.getByRole("passwordConfirmation").focus().type(password);
+};
+
+const simulateValidSubmit = (): void => {
+  populateFields();
   cy.getByRole("submit").click();
 };
 
@@ -64,5 +68,44 @@ describe("SignUp", () => {
     simulateValidSubmit();
     FormHelper.testMainError("Esse e-mail já está em uso");
     FormHelper.testUrl("/signup");
+  });
+
+  it("Should present UnexpectedError", () => {
+    Http.mockUnexpectedError();
+    simulateValidSubmit();
+    FormHelper.testMainError(
+      "Algo de errado aconteceu. Tente novamente em breve"
+    );
+    FormHelper.testUrl("/signup");
+  });
+
+  it("Should present save accessToken if valid credentials are provided", () => {
+    Http.mockOk();
+    simulateValidSubmit();
+    cy.getByRole("error-wrap").should("not.have.descendants");
+    FormHelper.testUrl("/");
+    FormHelper.testLocalStorageItem("accessToken");
+  });
+
+  it("Should present UnexpectedError if invalid data is returned", () => {
+    Http.mockInvalidData();
+    simulateValidSubmit();
+    FormHelper.testMainError(
+      "Algo de errado aconteceu. Tente novamente em breve"
+    );
+    FormHelper.testUrl("/signup");
+  });
+
+  it("Should prevent multiple submits", () => {
+    Http.mockOk();
+    populateFields();
+    cy.getByRole("submit").dblclick();
+    FormHelper.testHttpCallsCount(1);
+  });
+
+  it("Should not call submit if form is invalid", () => {
+    Http.mockOk();
+    cy.getByRole("email").focus().type(faker.internet.email()).type("{enter}");
+    FormHelper.testHttpCallsCount(0);
   });
 });
