@@ -1,6 +1,6 @@
 import faker from "faker";
 import * as FormHelper from "../support/form-helper";
-import * as Helper from "../support/login-mocks";
+import * as Http from "../support/login-mocks";
 
 const simulateValidSubmit = (): void => {
   cy.getByRole("email").focus().type(faker.internet.email());
@@ -41,16 +41,14 @@ describe("Login", () => {
   });
 
   it("Should present InvalidCredentialsError", () => {
-    Helper.mockInvalidCredentialsError();
-    cy.getByRole("email").focus().type(faker.internet.email());
-    cy.getByRole("password").focus().type(faker.random.alphaNumeric(5));
-    cy.getByRole("submit").click();
+    Http.mockInvalidCredentialsError();
+    simulateValidSubmit();
     FormHelper.testMainError("Credenciais inválidas");
     FormHelper.testUrl("/login");
   });
 
   it("Should present UnexpectedError", () => {
-    Helper.mockUnexpectedError();
+    Http.mockUnexpectedError();
     simulateValidSubmit();
     FormHelper.testMainError(
       "Algo de errado aconteceu. Tente novamente em breve"
@@ -59,7 +57,7 @@ describe("Login", () => {
   });
 
   it("Should present save accessToken if valid credentials are provided", () => {
-    Helper.mockOk();
+    Http.mockOk();
     simulateValidSubmit();
     cy.getByRole("error-wrap").should("not.have.descendants");
     FormHelper.testUrl("/");
@@ -67,7 +65,7 @@ describe("Login", () => {
   });
 
   it("Should present UnexpectedError if invalid data is returned", () => {
-    Helper.mockInvalidData();
+    Http.mockInvalidData();
     simulateValidSubmit();
     FormHelper.testMainError(
       "Algo de errado aconteceu. Tente novamente em breve"
@@ -76,7 +74,7 @@ describe("Login", () => {
   });
 
   it("Should prevent multiple submits", () => {
-    Helper.mockOk();
+    Http.mockOk();
     cy.getByRole("email").focus().type(faker.internet.email());
     cy.getByRole("password").focus().type(faker.random.alphaNumeric(5));
     cy.getByRole("submit").dblclick();
@@ -84,7 +82,7 @@ describe("Login", () => {
   });
 
   it("Should not call submit if form is invalid", () => {
-    Helper.mockOk();
+    Http.mockOk();
     cy.getByRole("email").focus().type(faker.internet.email()).type("{enter}");
     FormHelper.testHttpCallsCount(0);
   });

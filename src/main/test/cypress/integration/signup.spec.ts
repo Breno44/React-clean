@@ -1,5 +1,16 @@
 import faker from "faker";
 import * as FormHelper from "../support/form-helper";
+import * as Http from "../support/signup-mocks";
+
+const simulateValidSubmit = (): void => {
+  const password = faker.random.alphaNumeric(7);
+
+  cy.getByRole("name").focus().type(faker.name.findName());
+  cy.getByRole("email").focus().type(faker.internet.email());
+  cy.getByRole("password").focus().type(password);
+  cy.getByRole("passwordConfirmation").focus().type(password);
+  cy.getByRole("submit").click();
+};
 
 describe("SignUp", () => {
   beforeEach(() => {
@@ -46,5 +57,12 @@ describe("SignUp", () => {
     FormHelper.testInputStatus("passwordConfirmation");
     cy.getByRole("submit").should("not.have.attr", "disabled");
     cy.getByRole("error-wrap").should("not.have.descendants");
+  });
+
+  it("Should present EmailInUse", () => {
+    Http.mockEmailInUse();
+    simulateValidSubmit();
+    FormHelper.testMainError("Esse e-mail já está em uso");
+    FormHelper.testUrl("/signup");
   });
 });
