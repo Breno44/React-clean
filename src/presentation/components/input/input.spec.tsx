@@ -32,4 +32,13 @@ describe("Input component", () => {
     fireEvent.focus(input);
     expect(input.readOnly).toBe(false);
   });
+
+  test("Should focus input on label click", () => {
+    const field = faker.database.column();
+    makeSut(field);
+    const input = screen.getByRole(field);
+    const label = screen.getByRole(`${field}-label`);
+    fireEvent.click(label);
+    expect(document.activeElement).toBe(input);
+  });
 });
